@@ -5,7 +5,6 @@ import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.groups.Groups.deadline;
 import static com.pedropathing.ivy.groups.Groups.parallel;
-import static com.pedropathing.ivy.groups.Groups.race;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -62,7 +61,7 @@ public class MainAuto extends OpMode {
 
     private Command autoRoutine() {
         return sequential(
-                  race(
+                  deadline(
                       timeCondition(),
                       sequential(
                            follow(follower, shootPath()),
