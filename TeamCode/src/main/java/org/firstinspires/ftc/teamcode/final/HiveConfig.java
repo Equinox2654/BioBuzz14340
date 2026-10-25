@@ -33,13 +33,13 @@ public final class HiveConfig {
     public static String MOTOR_RIGHT_FRONT = "FR";
     public static String MOTOR_LEFT_BACK   = "BL";
     public static String MOTOR_RIGHT_BACK  = "BR";
-    public static String MOTOR_INTAKE      = "";        // "" = no intake wired
+    public static String MOTOR_INTAKE      = "intake";        // "" = no intake wired
 
     /* ---------------- camera geometry (measure these) ---------------- */
 
     public static double CAM_PITCH_DEG = 25.0;     // camera tilt BELOW horizontal
     public static double CAM_H         = 9.2;      // camera lens height above floor, in
-    public static double BALL_H        = 3.0;      // ball center height above floor, in
+    public static double BALL_H        = 1.397638; // ball center height above floor, in
     public static double CAM_X_OFFSET  = 0.0;      // camera FORWARD of robot center, in
     public static double CAM_Y_OFFSET  = 0.0;      // camera LEFT of robot center, in; negative = right
     public static double HFOV_DEG      = 54.5;     // verify for your unit
