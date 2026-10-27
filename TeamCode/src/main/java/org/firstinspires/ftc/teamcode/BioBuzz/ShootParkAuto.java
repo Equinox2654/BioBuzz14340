@@ -25,8 +25,8 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public class ShootParkAuto extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
-    private final Pose startPose = p.of(48, 0, 270);
-    private final Pose shootPose = p.of(50, 1, 270);
+    private final Pose startPose = p.of(56, 0, 270);
+    private final Pose shootPose = p.of(56, 0, 270);
     private final Pose parkBezierControlPose = p.of(6, 63, 90);
     private final Pose parkPose = p.of(4, 87, 90);
 

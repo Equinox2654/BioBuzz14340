@@ -26,8 +26,8 @@ public class MainAuto extends OpMode {
 
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
-    private final Pose startPose = p.of(48, 0, 270);
-    private final Pose shootPose = p.of(48, 0, 270);
+    private final Pose startPose = p.of(56, 0, 270);
+    private final Pose shootPose = p.of(6, 0, 270);
     private final Pose oppShootPose = p.of(59.55, 132.85, 90);
     private final ElapsedTime elapsedTime = new ElapsedTime();
     private final ElapsedTime gameTime = new ElapsedTime();
