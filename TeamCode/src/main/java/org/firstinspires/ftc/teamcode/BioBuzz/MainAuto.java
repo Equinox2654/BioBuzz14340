@@ -27,7 +27,7 @@ public class MainAuto extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(56, 0, 270);
-    private final Pose shootPose = p.of(6, 0, 270);
+    private final Pose shootPose = p.of(56, 0, 270);
     private final Pose oppShootPose = p.of(59.55, 132.85, 90);
     private final ElapsedTime elapsedTime = new ElapsedTime();
     private final ElapsedTime gameTime = new ElapsedTime();
@@ -139,7 +139,7 @@ public class MainAuto extends OpMode {
     private Path Park() {
         Pose currentPose = follower.pose();
         Pose cp1 = p.of(13.87, 33.03, 90);
-        Pose endP = p.of(13.76, 95.62, 90);
+        Pose endP = p.of(4, 87, 90);
         return curve(currentPose, cp1, endP).linear(currentPose, endP);
     }
 
