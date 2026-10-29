@@ -19,7 +19,7 @@ public class LeaveParkAuto extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(9, 132, 0);
-    private final Pose parkPose = p.of(4, 87, 0);
+    private final Pose parkPose = p.of(4, 87, 90);
 
     @Override
     public void init() {
