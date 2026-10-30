@@ -142,8 +142,8 @@ public class TeleOpBioBuzz extends OpMode {
         double dx = pose.x() - hivePose.x();
         double dy = pose.y() - hivePose.y();
         double angle = Math.toDegrees(Math.atan2(dx, dy));
-        if (pose.x() < hivePose.x()) angle = 270 - angle;
-        else angle = 270 + angle;
+        if (pose.x() < hivePose.x()) angle = hiveAngle - angle;
+        else angle = hiveAngle + angle;
         Pose shootPose = p.of(pose.x() + 0.001, pose.y(), angle);
         schedule(
                 follow(follower, line(pose, shootPose).constant(shootPose))
