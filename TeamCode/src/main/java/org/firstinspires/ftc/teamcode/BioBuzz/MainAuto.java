@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.BioBuzz;
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.lazy;
 import static com.pedropathing.ivy.groups.Groups.deadline;
 import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
@@ -70,19 +71,20 @@ public class MainAuto extends OpMode {
                       sequential(
                            follow(follower, AutonomousPaths.shootPath(follower)),
                            shoot(),
-                           collect(AutonomousPaths.collectGarden(follower)),
-                           follow(follower, AutonomousPaths.shootOpposite1(follower)),
+                           collect(AutonomousPaths.collectGarden()),
+                           follow(follower, AutonomousPaths.shootOpposite1()),
                            shoot(),
-                           collect(AutonomousPaths.collectOppFlower(follower)),
-                           follow(follower, AutonomousPaths.shootOpposite2(follower)),
+                           collect(AutonomousPaths.collectOppFlower()),
+                           follow(follower, AutonomousPaths.shootOpposite2()),
                            shoot(),
-                           collect(AutonomousPaths.collectCloseFlower(follower)),
-                           follow(follower, AutonomousPaths.shootFinal(follower)),
-                           shoot(),
-                           follow(follower, AutonomousPaths.Park(follower))
+                           collect(AutonomousPaths.collectCloseFlower()),
+                           follow(follower, AutonomousPaths.shootFinal()),
+                           shoot()
                       )
                 ),
-                follow(follower, AutonomousPaths.Park(follower))
+                lazy(() -> {
+                    return follow(follower, AutonomousPaths.Park(follower.pose()));
+                })
         );
     }
 
