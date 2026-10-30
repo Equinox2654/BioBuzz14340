@@ -64,21 +64,21 @@ public class MainAuto extends OpMode {
                   deadline(
                       timeCondition(),
                       sequential(
-                           follow(follower, shootPath()),
+                           follow(follower, AutonomousPaths.shootPath(follower)),
                            shoot(),
                            collect(collectGarden()),
-                           follow(follower, shootOpposite1()),
+                           follow(follower, AutonomousPaths.shootOpposite1(follower)),
                            shoot(),
                            collect(collectOppFlower()),
-                           follow(follower, shootOpposite2()),
+                           follow(follower, AutonomousPaths.shootOpposite2(follower)),
                            shoot(),
                            collect(collectCloseFlower()),
-                           follow(follower, shootFinal()),
+                           follow(follower, AutonomousPaths.shootFinal(follower)),
                            shoot(),
-                           follow(follower, Park())
+                           follow(follower, AutonomousPaths.Park(follower))
                       )
                 ),
-                follow(follower, Park())
+                follow(follower, AutonomousPaths.Park(follower))
         );
     }
 
