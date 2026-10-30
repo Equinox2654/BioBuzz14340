@@ -66,13 +66,13 @@ public class MainAuto extends OpMode {
                       sequential(
                            follow(follower, AutonomousPaths.shootPath(follower)),
                            shoot(),
-                           collect(collectGarden()),
+                           collect(AutonomousPaths.collectGarden(follower)),
                            follow(follower, AutonomousPaths.shootOpposite1(follower)),
                            shoot(),
-                           collect(collectOppFlower()),
+                           collect(AutonomousPaths.collectOppFlower(follower)),
                            follow(follower, AutonomousPaths.shootOpposite2(follower)),
                            shoot(),
-                           collect(collectCloseFlower()),
+                           collect(AutonomousPaths.collectCloseFlower(follower)),
                            follow(follower, AutonomousPaths.shootFinal(follower)),
                            shoot(),
                            follow(follower, AutonomousPaths.Park(follower))
