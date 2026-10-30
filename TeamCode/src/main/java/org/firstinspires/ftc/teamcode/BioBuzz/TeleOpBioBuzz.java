@@ -107,17 +107,15 @@ public class TeleOpBioBuzz extends OpMode {
 
     private void aimbot() {
         Pose pose = follower.pose();
+        Pose shootpose;
         if (pose.y() <= 70) {
-            Pose shootpose = p.of(59, 0, 270);
-            schedule(
-                    follow(follower, line(pose, shootpose).constant(shootpose))
-            );
+            shootpose = p.of(59, 0, 270);
         }
         else {
-            Pose shootpose = p.of(59, 132, 90);
-            schedule(
-                    follow(follower, line(pose, shootpose).constant(shootpose))
-            );
+            shootpose = p.of(59, 132, 90);
         }
+        schedule(
+                follow(follower, line(pose, shootpose).constant(shootpose))
+        );
     }
 }
