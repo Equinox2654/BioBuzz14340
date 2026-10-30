@@ -50,6 +50,7 @@ public class TeleOpBioBuzz extends OpMode {
     private boolean aimbotting = false;
     private boolean lastY = false;
     private boolean lastB = false;
+    private boolean lastDpadup = false;
     @Override
     public void loop() {
         telemetry.addData("Runtime", runTime.toString());
@@ -59,6 +60,12 @@ public class TeleOpBioBuzz extends OpMode {
             Scheduler.reset();
             aimbotting = false;
         }
+
+        if (gamepad1.dpad_up && !lastDpadup && !aimbotting) {
+            aimbotting = true;
+            lookAtHive();
+        }
+        lastDpadup = gamepad1.dpad_up;
 
         if (gamepad1.b && !lastB && !aimbotting) {
             aimbotting = true;
@@ -116,6 +123,30 @@ public class TeleOpBioBuzz extends OpMode {
         }
         schedule(
                 follow(follower, line(pose, shootpose).constant(shootpose))
+        );
+    }
+
+    private void lookAtHive() {
+        Pose pose = follower.pose();
+        Pose hivePose;
+        int hiveAngle;
+        if (pose.y() <= 70) {
+            hivePose = p.of(58.39, 58.34, 0);
+            hiveAngle = 270;
+        }
+        else {
+            hivePose = p.of(58.04, 82.18, 0);
+            hiveAngle = 90;
+        }
+        // Put trig here later
+        double dx = pose.x() - hivePose.x();
+        double dy = pose.y() - hivePose.y();
+        double angle = Math.toDegrees(Math.atan2(dx, dy));
+        if (pose.x() < hivePose.x()) angle = 270 - angle;
+        else angle = 270 + angle;
+        Pose shootPose = p.of(pose.x() + 0.001, pose.y(), angle);
+        schedule(
+                follow(follower, line(pose, shootPose).constant(shootPose))
         );
     }
 }
