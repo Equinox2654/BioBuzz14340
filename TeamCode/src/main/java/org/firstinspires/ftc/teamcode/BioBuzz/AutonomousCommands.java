@@ -16,6 +16,8 @@ public class AutonomousCommands {
                 shoot,
                 // Collect from garden
                 collect.apply(AutonomousPaths.collectGarden()),
+                // Go to other side
+                follow(follower, AutonomousPaths.shootOpposite1()),
                 fork(isHiveUp.apply(null), follower, shoot, collect)
         );
     }
@@ -27,7 +29,6 @@ public class AutonomousCommands {
     private static Command fork(boolean isHiveUp, Follower follower, Command shoot, java.util.function.Function<Path, Command> collect) {
         return isHiveUp ? sequential(
                 // Shoot other side
-                follow(follower, AutonomousPaths.shootOpposite1()),
                 shoot,
                 // Collect from opposite flower
                 collect.apply(AutonomousPaths.collectOppFlower()),
