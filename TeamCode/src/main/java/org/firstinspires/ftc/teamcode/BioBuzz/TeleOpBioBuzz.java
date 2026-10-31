@@ -16,6 +16,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -29,6 +31,8 @@ public class TeleOpBioBuzz extends OpMode {
     private final ElapsedTime runTime = new ElapsedTime();
     private DcMotor pollenShooter, nectarShooter;
     private DcMotor intake;
+    private Servo pollenServo;
+    //private Servo nectarServo;
     private Limelight3A limelight;
 
     @Override
@@ -39,10 +43,12 @@ public class TeleOpBioBuzz extends OpMode {
         pollenShooter  = hardwareMap.get(DcMotor.class, "PollenShooter");
         nectarShooter = hardwareMap.get(DcMotor.class, "NectarShooter");
         pollenShooter.setDirection(DcMotor.Direction.FORWARD);
-        nectarShooter.setDirection(DcMotor.Direction.FORWARD);
+        nectarShooter.setDirection(DcMotor.Direction.REVERSE);
 
         intake = hardwareMap.get(DcMotor.class, "Intake");
         intake.setDirection(DcMotor.Direction.FORWARD);
+
+        pollenServo = hardwareMap.get(Servo.class, "PollenShooter");
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
@@ -56,15 +62,19 @@ public class TeleOpBioBuzz extends OpMode {
     }
 
     @Override
-    public void start() { runTime.reset(); }
+    public void start() {
+        runTime.reset();
+        pollenServo.setPosition((double) 10/180);
+    }
 
     private boolean aimbotting = false;
-    private boolean lastY = false;
-    private boolean lastB = false;
-    private boolean lastDpadup = false;
+
     @Override
     public void loop() {
         telemetry.addData("Runtime", runTime.toString());
+
+        if (gamepad1.right_bumper) pollenServo.setPosition(0.2);
+        else pollenServo.setPosition(0);
 
         if ((abs(gamepad1.left_stick_x) > 0.1 || abs(gamepad1.left_stick_y) > 0.1 || abs(gamepad1.right_stick_x) > 0.1) && aimbotting) {
             follower.stop();
@@ -72,17 +82,15 @@ public class TeleOpBioBuzz extends OpMode {
             aimbotting = false;
         }
 
-        if (gamepad1.dpad_up && !lastDpadup && !aimbotting) {
+        if (gamepad1.dpadUpWasPressed() && !aimbotting) {
             aimbotting = true;
             lookAtHive();
         }
-        lastDpadup = gamepad1.dpad_up;
 
-        if (gamepad1.b && !lastB && !aimbotting) {
+        if (gamepad1.bWasPressed() && !aimbotting) {
             aimbotting = true;
             aimbot();
         }
-        lastB = gamepad1.b;
 
         if (!aimbotting) {
             follower.manual(
@@ -100,8 +108,7 @@ public class TeleOpBioBuzz extends OpMode {
             }
         }
 
-        if (gamepad1.y && !lastY) shoot();
-        lastY = gamepad1.y;
+        if (gamepad1.yWasPressed()) shoot();
         intake();
 
         telemetry.update();
@@ -113,7 +120,7 @@ public class TeleOpBioBuzz extends OpMode {
             nectarShooter.setPower(0);
         }
         else {
-            pollenShooter.setPower(0.8);
+            pollenShooter.setPower(0.7);
             nectarShooter.setPower(0.8);
         }
     }
