@@ -15,6 +15,7 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -50,6 +51,9 @@ public class MainAuto extends OpMode {
         intake.setDirection(DcMotor.Direction.FORWARD);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        telemetry.setMsTransmissionInterval(11);
+        limelight.pipelineSwitch(0);
+        limelight.start();
     }
 
     @Override
@@ -86,6 +90,14 @@ public class MainAuto extends OpMode {
                     return follow(follower, AutonomousPaths.Park(follower.pose()));
                 })
         );
+    }
+
+    private boolean isHiveUp() {
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            return !result.getFiducialResults().isEmpty();
+        }
+        return false;
     }
 
     private Command timeCondition() {
