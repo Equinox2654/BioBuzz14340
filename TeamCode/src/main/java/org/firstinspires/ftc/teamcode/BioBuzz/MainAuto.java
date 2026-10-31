@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.BioBuzz;
 
-import static com.pedropathing.api.Paths.curve;
-import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.lazy;
 import static com.pedropathing.ivy.groups.Groups.deadline;
-import static com.pedropathing.ivy.groups.Groups.parallel;
+import static com.pedropathing.ivy.groups.Groups.race;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -20,6 +18,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -29,12 +28,11 @@ public class MainAuto extends OpMode {
 
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
-    private final Pose startPose = p.of(56, 0, 270);
-    private final Pose shootPose = p.of(56, 0, 270);
-    private final Pose oppShootPose = p.of(59.55, 132.85, 90);
+    private final Pose startPose = p.of(56, 8, 270);
     private final ElapsedTime elapsedTime = new ElapsedTime();
     private final ElapsedTime gameTime = new ElapsedTime();
     private DcMotor shooter, intake;
+    private Servo pollenServo;
     private Limelight3A limelight;
 
     @Override
@@ -50,6 +48,8 @@ public class MainAuto extends OpMode {
         intake = hardwareMap.get(DcMotor.class, "Intake");
         intake.setDirection(DcMotor.Direction.FORWARD);
 
+        pollenServo = hardwareMap.get(Servo.class, "PollenServo");
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
@@ -58,6 +58,7 @@ public class MainAuto extends OpMode {
 
     @Override
     public void start() {
+        pollenServo.setPosition((double) 10/180);
         schedule(autoRoutine());
         gameTime.reset();
     }
@@ -73,7 +74,6 @@ public class MainAuto extends OpMode {
                   deadline(
                       timeCondition(),
                       sequential(
-                           follow(follower, AutonomousPaths.shootPath(follower)),
                            shoot(),
                            collect(AutonomousPaths.collectGarden()),
                            follow(follower, AutonomousPaths.shootOpposite1()),
@@ -167,8 +167,14 @@ public class MainAuto extends OpMode {
                     shooter.setPower(0.8);
                     elapsedTime.reset();
                 })
+                .setExecute(() -> {
+                    if (elapsedTime.seconds() > 1) pollenServo.setPosition(0);
+                })
                 .setDone(() -> elapsedTime.seconds() >= 2)
-                .setEnd(endCondition -> shooter.setPower(0))
+                .setEnd(endCondition -> {
+                    shooter.setPower(0);
+                    pollenServo.setPosition((double) 10 /180);
+                })
                 ;
     }
 
@@ -180,7 +186,7 @@ public class MainAuto extends OpMode {
     }
 
     private Command collect(Path path) {
-        return parallel(
+        return race(
                 follow(follower, path),
                 collectCommand()
         );
