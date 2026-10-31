@@ -13,6 +13,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
@@ -33,6 +34,7 @@ public class ShootParkAuto extends OpMode {
     private final ElapsedTime elapsedTime = new ElapsedTime();
 
     private DcMotor shooter;
+    private Servo pollenServo;
 
     @Override
     public void init() {
@@ -43,6 +45,8 @@ public class ShootParkAuto extends OpMode {
 
         shooter = hardwareMap.get(DcMotor.class, "PollenShooter");
         shooter.setDirection(DcMotor.Direction.FORWARD);
+
+        pollenServo = hardwareMap.get(Servo.class, "PollenServo");
     }
 
     @Override
@@ -79,8 +83,15 @@ public class ShootParkAuto extends OpMode {
                     shooter.setPower(0.8);
                     elapsedTime.reset();
                 })
+                .setExecute(() -> {
+                    if (elapsedTime.seconds() > 1)
+                        pollenServo.setPosition(0);
+                })
                 .setDone(() -> {return elapsedTime.seconds() >= 2;})
-                .setEnd(endCondition -> {shooter.setPower(0);})
+                .setEnd(endCondition -> {
+                    shooter.setPower(0);
+                    pollenServo.setPosition(0.2);
+                })
                 ;
     }
 }
