@@ -51,6 +51,7 @@ public class ShootParkAuto extends OpMode {
 
     @Override
     public void start() {
+        pollenServo.setPosition(0);
         schedule(autoRoutine());
     }
 

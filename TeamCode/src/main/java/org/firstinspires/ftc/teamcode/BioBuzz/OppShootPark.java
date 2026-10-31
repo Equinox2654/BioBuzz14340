@@ -50,6 +50,7 @@ public class OppShootPark extends OpMode {
 
     @Override
     public void start() {
+        pollenServo.setPosition(0);
         schedule(
                 waitForHive(),
                 shoot(),
