@@ -13,7 +13,7 @@ public class AutonomousCommands {
     protected static Command routine(Follower follower, Command shoot, java.util.function.Function<Path, Command> collect, java.util.function.Function<Void, Boolean> isHiveUp) {
         return sequential(
                 // Shoot at start
-                shootPath(follower),
+                follow(follower, AutonomousPaths.shootPath(follower)),
                 shoot,
                 // Collect from garden
                 collect.apply(AutonomousPaths.collectGarden()),
@@ -21,10 +21,6 @@ public class AutonomousCommands {
                 follow(follower, AutonomousPaths.shootOpposite1()),
                 lazy(() -> { return fork(isHiveUp, follower, shoot, collect); })
         );
-    }
-
-    private static Command shootPath(Follower follower) {
-        return follow(follower, AutonomousPaths.shootPath(follower));
     }
 
     private static Command fork(java.util.function.Function<Void, Boolean> isHiveUp, Follower follower, Command shoot, java.util.function.Function<Path, Command> collect) {
