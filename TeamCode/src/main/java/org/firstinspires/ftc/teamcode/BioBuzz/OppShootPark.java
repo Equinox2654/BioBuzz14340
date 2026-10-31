@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.BioBuzz;
 
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.groups.Groups.race;
+import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.pedropathing.api.PoseFactory;
@@ -30,6 +32,7 @@ public class OppShootPark extends OpMode {
     private DcMotor shooter;
     private Servo pollenServo;
     private final ElapsedTime elapsedTime = new ElapsedTime();
+    private final ElapsedTime gameTime = new ElapsedTime();
 
     @Override
     public void init() {
@@ -52,10 +55,22 @@ public class OppShootPark extends OpMode {
     public void start() {
         pollenServo.setPosition(0);
         schedule(
-                waitForHive(),
-                shoot(),
+                race(
+                    timeCondition(),
+                    sequential(
+                        waitForHive(),
+                        shoot()
+                    )
+                ),
                 follow(follower, line(startPose, parkPose).linear(startPose, parkPose))
         );
+    }
+
+    private Command timeCondition() {
+        return Command.build()
+                .setStart(gameTime::reset)
+                .setDone(() -> gameTime.seconds() > 25)
+                ;
     }
 
     private Command waitForHive() {
