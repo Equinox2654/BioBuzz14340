@@ -13,6 +13,9 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
@@ -24,6 +27,9 @@ public class OppShootPark extends OpMode {
     private final Pose startPose = p.of(9, 132, 0);
     private final Pose parkPose = p.of(4, 87, 90);
     private Limelight3A limelight;
+    private DcMotor shooter;
+    private Servo pollenServo;
+    private final ElapsedTime elapsedTime = new ElapsedTime();
 
     @Override
     public void init() {
@@ -31,6 +37,10 @@ public class OppShootPark extends OpMode {
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
         follower.update();
+
+        shooter = hardwareMap.get(DcMotor.class, "PollenShooter");
+
+        pollenServo = hardwareMap.get(Servo.class, "PollenServo");
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
@@ -42,6 +52,7 @@ public class OppShootPark extends OpMode {
     public void start() {
         schedule(
                 waitForHive(),
+                shoot(),
                 follow(follower, line(startPose, parkPose).linear(startPose, parkPose))
         );
     }
@@ -53,6 +64,24 @@ public class OppShootPark extends OpMode {
                     if (result != null && result.isValid())
                         return !result.getFiducialResults().isEmpty();
                     return false;
+                })
+                ;
+    }
+
+    private Command shoot() {
+        return Command.build()
+                .setStart(() -> {
+                    shooter.setPower(0.8);
+                    elapsedTime.reset();
+                })
+                .setExecute(() -> {
+                    if (elapsedTime.seconds() > 1)
+                        pollenServo.setPosition(0);
+                })
+                .setDone(() -> {return elapsedTime.seconds() >= 2;})
+                .setEnd(endCondition -> {
+                    shooter.setPower(0);
+                    pollenServo.setPosition(0.2);
                 })
                 ;
     }
