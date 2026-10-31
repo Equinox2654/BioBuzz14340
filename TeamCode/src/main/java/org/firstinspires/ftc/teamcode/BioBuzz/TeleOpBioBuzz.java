@@ -6,10 +6,13 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import static java.lang.Math.abs;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -26,6 +29,7 @@ public class TeleOpBioBuzz extends OpMode {
     private final ElapsedTime runTime = new ElapsedTime();
     private DcMotor pollenShooter, nectarShooter;
     private DcMotor intake;
+    private Limelight3A limelight;
 
     @Override
     public void init() {
@@ -39,6 +43,13 @@ public class TeleOpBioBuzz extends OpMode {
 
         intake = hardwareMap.get(DcMotor.class, "Intake");
         intake.setDirection(DcMotor.Direction.FORWARD);
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        telemetry.setMsTransmissionInterval(11);
+        limelight.pipelineSwitch(0);
+        limelight.start();
+
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         telemetry.addData("Status", "Initialised");
         telemetry.update();
