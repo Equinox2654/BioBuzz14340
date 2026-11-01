@@ -90,9 +90,9 @@ public class MainAuto extends OpMode {
                     Pose pose = follower.pose();
                     if (pose.x() > 38) {
                        if (pose.y() < 70) {
-                           return follow(follower, AutonomousPaths.Park(pose, p.of(46, 28, 90)));
+                           return follow(follower, AutonomousPaths.Park(pose, p.of(46, 22, 90)));
                        }
-                       return follow(follower, AutonomousPaths.Park(pose, p.of(46, 114, 90)));
+                       return follow(follower, AutonomousPaths.Park(pose, p.of(46, 119, 90)));
                     }
                     return follow(follower, AutonomousPaths.Park(pose));
                 })
