@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.BioBuzz;
 
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.api.Paths.line;
+import static com.pedropathing.api.Paths.through;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
@@ -70,7 +71,7 @@ public class AutonomousPaths {
 
     protected static Path Park (Pose from, Pose cp1) {
         Pose endP = p.of(4, 87, 90);
-        return curve(from, cp1, endP).linear(from, endP);
+        return through(from, cp1, endP).linear(from, endP);
     }
 
     protected static Path altOppShootToCloseShoot() {
