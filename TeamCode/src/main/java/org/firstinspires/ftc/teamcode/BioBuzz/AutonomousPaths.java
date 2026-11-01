@@ -68,6 +68,11 @@ public class AutonomousPaths {
         return curve(from, cp1, endP).linear(from, endP);
     }
 
+    protected static Path Park (Pose from, Pose cp1) {
+        Pose endP = p.of(4, 87, 90);
+        return curve(from, cp1, endP).linear(from, endP);
+    }
+
     protected static Path altOppShootToCloseShoot() {
         return line(gardenEnd, shootPose).linear(gardenEnd, shootPose);
     }

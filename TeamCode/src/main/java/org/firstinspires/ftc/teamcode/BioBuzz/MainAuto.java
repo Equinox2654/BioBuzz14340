@@ -87,7 +87,14 @@ public class MainAuto extends OpMode {
                       )
                 ),
                 lazy(() -> {
-                    return follow(follower, AutonomousPaths.Park(follower.pose()));
+                    Pose pose = follower.pose();
+                    if (pose.x() > 38) {
+                       if (pose.y() < 70) {
+                           return follow(follower, AutonomousPaths.Park(pose, p.of(34, 9, 90)));
+                       }
+                       return follow(follower, AutonomousPaths.Park(pose, p.of(34, 127, 90)));
+                    }
+                    return follow(follower, AutonomousPaths.Park(pose));
                 })
         );
     }
