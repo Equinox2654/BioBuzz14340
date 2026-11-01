@@ -16,6 +16,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -28,6 +29,8 @@ public class TeleOpBioBuzz extends OpMode {
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(4, 87, 90);
     private final ElapsedTime runTime = new ElapsedTime();
+    private DcMotor Fl, Bl, Fr, Br;
+    private double FlP, BlP, FrP, BrP;
     private DcMotor pollenShooter, nectarShooter;
     private DcMotor intake;
     private Servo pollenServo;
@@ -38,6 +41,19 @@ public class TeleOpBioBuzz extends OpMode {
     public void init() {
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
+
+        Fl = hardwareMap.get(DcMotor.class, "FL");
+        Bl = hardwareMap.get(DcMotor.class, "BL");
+        Fr = hardwareMap.get(DcMotor.class, "FR");
+        Br = hardwareMap.get(DcMotor.class, "BR");
+        Fl.setDirection(DcMotor.Direction.REVERSE);
+        Bl.setDirection(DcMotor.Direction.REVERSE);
+        Fr.setDirection(DcMotor.Direction.FORWARD);
+        Br.setDirection(DcMotor.Direction.FORWARD);
+        Fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         pollenShooter  = hardwareMap.get(DcMotor.class, "PollenShooter");
         nectarShooter = hardwareMap.get(DcMotor.class, "NectarShooter");
@@ -66,46 +82,32 @@ public class TeleOpBioBuzz extends OpMode {
         pollenServo.setPosition((double) 10/180);
     }
 
-    private boolean aimbotting = false;
-
     @Override
     public void loop() {
         telemetry.addData("Runtime", runTime.toString());
 
-        if (gamepad1.right_bumper) pollenServo.setPosition(0.2);
-        else pollenServo.setPosition(0);
+        double max;
+        double axial = -gamepad1.left_stick_y;
+        double lateral = gamepad1.left_stick_x;
+        double yaw = gamepad1.right_stick_x;
 
-        if ((abs(gamepad1.left_stick_x) > 0.1 || abs(gamepad1.left_stick_y) > 0.1 || abs(gamepad1.right_stick_x) > 0.1) && aimbotting) {
-            follower.stop();
-            Scheduler.reset();
-            aimbotting = false;
+        FlP = axial + lateral + yaw;
+        BlP = axial - lateral + yaw;
+        FrP = axial - lateral - yaw;
+        BrP = axial + lateral - yaw;
+
+        max = Math.max(Math.abs(FlP), Math.max(Math.abs(BlP), Math.max(Math.abs(FrP), Math.abs(BrP))));
+        if (max > 1.0) {
+            FlP /= max;
+            BlP /= max;
+            FrP /= max;
+            BrP /= max;
         }
 
-        if (gamepad1.dpadUpWasPressed() && !aimbotting) {
-            aimbotting = true;
-            lookAtHive();
-        }
-
-        if (gamepad1.bWasPressed() && !aimbotting) {
-            aimbotting = true;
-            aimbot();
-        }
-
-        if (!aimbotting) {
-            follower.manual(
-                    -gamepad1.left_stick_y,
-                    -gamepad1.left_stick_x,
-                    -gamepad1.right_stick_x
-            );
-            follower.update();
-        }
-        else {
-            follower.update();
-            Scheduler.execute();
-            if (!follower.isBusy()) {
-                aimbotting = false;
-            }
-        }
+        Fl.setPower(FlP);
+        Bl.setPower(BlP);
+        Fr.setPower(FrP);
+        Br.setPower(BrP);
 
         if (gamepad1.yWasPressed()) shoot();
         intake();
@@ -127,43 +129,5 @@ public class TeleOpBioBuzz extends OpMode {
     private void intake() {
         if (gamepad1.a) intake.setPower(1);
         else intake.setPower(0);
-    }
-
-    private void aimbot() {
-        Pose pose = follower.pose();
-        Pose shootpose;
-        if (pose.y() <= 70) {
-            shootpose = p.of(59, 0, 270);
-        }
-        else {
-            shootpose = p.of(59, 132, 90);
-        }
-        schedule(
-                follow(follower, line(pose, shootpose).constant(shootpose))
-        );
-    }
-
-    private void lookAtHive() {
-        Pose pose = follower.pose();
-        Pose hivePose;
-        int hiveAngle;
-        if (pose.y() <= 70) {
-            hivePose = p.of(58.39, 58.34, 0);
-            hiveAngle = 270;
-        }
-        else {
-            hivePose = p.of(58.04, 82.18, 0);
-            hiveAngle = 90;
-        }
-        // Put trig here later
-        double dx = pose.x() - hivePose.x();
-        double dy = pose.y() - hivePose.y();
-        double angle = Math.toDegrees(Math.atan2(dx, dy));
-        if (pose.x() < hivePose.x()) angle = hiveAngle - angle;
-        else angle = hiveAngle + angle;
-        Pose shootPose = p.of(pose.x() + 0.001, pose.y(), angle);
-        schedule(
-                follow(follower, line(pose, shootPose).constant(shootPose))
-        );
     }
 }
