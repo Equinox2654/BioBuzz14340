@@ -1,33 +1,17 @@
 package org.firstinspires.ftc.teamcode.BioBuzz;
 
-import static com.pedropathing.api.Paths.line;
-import static com.pedropathing.ivy.Scheduler.schedule;
-import static com.pedropathing.ivy.pedro.PedroCommands.follow;
-
-import static java.lang.Math.abs;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.api.PoseFactory;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @TeleOp(name="TeleOp 2026", group="TeleOp Main")
 public class TeleOpBioBuzz extends OpMode {
 
-    private Follower follower;
-    private final PoseFactory p = PoseFactory.degrees();
-    private final Pose startPose = p.of(4, 87, 90);
     private final ElapsedTime runTime = new ElapsedTime();
     private DcMotor Fl, Bl, Fr, Br;
     private double FlP, BlP, FrP, BrP;
@@ -39,9 +23,6 @@ public class TeleOpBioBuzz extends OpMode {
 
     @Override
     public void init() {
-        follower = Constants.create(hardwareMap);
-        follower.setPose(startPose);
-
         Fl = hardwareMap.get(DcMotor.class, "FL");
         Bl = hardwareMap.get(DcMotor.class, "BL");
         Fr = hardwareMap.get(DcMotor.class, "FR");
