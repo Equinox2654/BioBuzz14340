@@ -18,7 +18,7 @@ public class TeleOpBioBuzz extends OpMode {
     private DcMotor pollenShooter, nectarShooter;
     private DcMotor intake;
     private Servo pollenServo;
-    //private Servo nectarServo;
+    private Servo nectarServo;
     private Limelight3A limelight;
 
     @Override
@@ -44,7 +44,8 @@ public class TeleOpBioBuzz extends OpMode {
         intake = hardwareMap.get(DcMotor.class, "Intake");
         intake.setDirection(DcMotor.Direction.FORWARD);
 
-        pollenServo = hardwareMap.get(Servo.class, "PollenShooter");
+        pollenServo = hardwareMap.get(Servo.class, "PollenServo");
+        nectarServo = hardwareMap.get(Servo.class, "NectarServo");
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
@@ -53,6 +54,10 @@ public class TeleOpBioBuzz extends OpMode {
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
+        pollenServo.setDirection(Servo.Direction.REVERSE);
+        pollenServo.setPosition(0.9);
+        nectarServo.setPosition(0.9);
+
         telemetry.addData("Status", "Initialised");
         telemetry.update();
     }
@@ -60,7 +65,6 @@ public class TeleOpBioBuzz extends OpMode {
     @Override
     public void start() {
         runTime.reset();
-        pollenServo.setPosition((double) 10/180);
     }
 
     @Override
@@ -92,6 +96,15 @@ public class TeleOpBioBuzz extends OpMode {
 
         if (gamepad1.yWasPressed()) shoot();
         intake();
+
+        if (gamepad1.left_bumper) {
+            pollenServo.setPosition(1);
+            nectarServo.setPosition(0.9);
+        }
+        else {
+            pollenServo.setPosition(0.9);
+            nectarServo.setPosition(0.7);
+        }
 
         telemetry.update();
     }
