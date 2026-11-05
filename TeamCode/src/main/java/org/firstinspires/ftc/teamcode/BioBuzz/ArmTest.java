@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.BioBuzz;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp
@@ -12,16 +13,17 @@ public class ArmTest extends OpMode {
 
     // Tunables
     private double kP = 0.003, kI = 0.0, kD = 0.0;
-    private static final double MAX_POWER = 0.6;     // cap while testing
-    private static final int TOLERANCE = 10;         // ticks, stop inside this
-    private static final int MIN_TARGET = 0;         // soft limits (ticks)
-    private static final int MAX_TARGET = 600;       // set from your measurements
+    protected static final double MAX_POWER = 0.6;     // cap while testing
+    protected static final int TOLERANCE = 10;         // ticks, stop inside this
+    protected static final int MIN_TARGET = 0;         // soft limits (ticks)
+    protected static final int MAX_TARGET = 7665;       // set from your measurements
 
     private double target = 0;
 
     @Override
     public void init() {
         arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -54,7 +56,7 @@ public class ArmTest extends OpMode {
         // Live kP tuning (edge-detected so it changes once per press)
         if (gamepad1.dpadUpWasPressed())     kP += 0.0005;
         if (gamepad1.dpadDownWasPressed()) kP = Math.max(0, kP - 0.0005);
-        pid.setPID(kP, kI, kD);
+        pid.setPID(0.01, 0, 0);
 
         target = Range.clip(target, MIN_TARGET, MAX_TARGET);
 
