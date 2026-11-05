@@ -26,10 +26,10 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 public class ShootParkAuto extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
-    private final Pose startPose = p.of(56, 0, 270);
+    private final Pose startPose = p.of(48, 0, 270);
     private final Pose shootPose = p.of(56, 0, 270);
-    private final Pose parkBezierControlPose = p.of(6, 63, 90);
-    private final Pose parkPose = p.of(4, 87, 90);
+    private final Pose parkBezierControlPose = p.of(22, 20, 90);
+    private final Pose parkPose = p.of(7, 87, 90);
 
     private final ElapsedTime elapsedTime = new ElapsedTime();
 
@@ -47,11 +47,12 @@ public class ShootParkAuto extends OpMode {
         shooter.setDirection(DcMotor.Direction.FORWARD);
 
         pollenServo = hardwareMap.get(Servo.class, "PollenServo");
+        pollenServo.setDirection(Servo.Direction.REVERSE);
+        pollenServo.setPosition(0.8);
     }
 
     @Override
     public void start() {
-        pollenServo.setPosition(0);
         schedule(autoRoutine());
     }
 
@@ -81,17 +82,19 @@ public class ShootParkAuto extends OpMode {
     private Command shoot() {
         return Command.build()
                 .setStart(() -> {
-                    shooter.setPower(0.8);
+                    shooter.setPower(0.72);
                     elapsedTime.reset();
                 })
                 .setExecute(() -> {
-                    if (elapsedTime.seconds() > 1)
-                        pollenServo.setPosition(0);
+                    if (elapsedTime.seconds() > 3)
+                        pollenServo.setPosition(1);
+                    if (elapsedTime.seconds() > 5)
+                        shooter.setPower(0.75);
                 })
-                .setDone(() -> {return elapsedTime.seconds() >= 2;})
+                .setDone(() -> {return elapsedTime.seconds() >= 10;})
                 .setEnd(endCondition -> {
                     shooter.setPower(0);
-                    pollenServo.setPosition(0.2);
+                    pollenServo.setPosition(0.8);
                 })
                 ;
     }
