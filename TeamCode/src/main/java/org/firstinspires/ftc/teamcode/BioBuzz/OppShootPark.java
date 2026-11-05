@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.BioBuzz;
 
 import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.lazy;
 import static com.pedropathing.ivy.groups.Groups.race;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
@@ -28,6 +29,7 @@ public class OppShootPark extends OpMode {
     private final PoseFactory p = PoseFactory.degrees();
     private final Pose startPose = p.of(9, 132, 0);
     private final Pose parkPose = p.of(4, 87, 90);
+    private final Pose closeShootPose = p.of(50, 0, 270);
     private Limelight3A limelight;
     private DcMotor shooter;
     private Servo pollenServo;
@@ -44,6 +46,7 @@ public class OppShootPark extends OpMode {
         shooter = hardwareMap.get(DcMotor.class, "PollenShooter");
 
         pollenServo = hardwareMap.get(Servo.class, "PollenServo");
+        pollenServo.setPosition(0.8);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
@@ -55,21 +58,27 @@ public class OppShootPark extends OpMode {
     public void start() {
         pollenServo.setPosition(0);
         schedule(
-                race(
-                    timeCondition(),
-                    sequential(
-                        waitForHive(),
-                        shoot()
+                sequential(
+                    race(
+                        timeCondition(),
+                        sequential(
+                            waitForHive(),
+                            shoot()
+                        )
+                    ),
+                    follow(follower, line(startPose, closeShootPose).linear(startPose, closeShootPose)),
+                    lazy(() -> {
+                            return follow(follower, line(follower.pose(), parkPose).linear(follower.pose(), parkPose));
+                        }
                     )
-                ),
-                follow(follower, line(startPose, parkPose).linear(startPose, parkPose))
+                )
         );
     }
 
     private Command timeCondition() {
         return Command.build()
                 .setStart(gameTime::reset)
-                .setDone(() -> gameTime.seconds() > 25)
+                .setDone(() -> gameTime.seconds() > 10)
                 ;
     }
 
@@ -87,17 +96,17 @@ public class OppShootPark extends OpMode {
     private Command shoot() {
         return Command.build()
                 .setStart(() -> {
-                    shooter.setPower(0.8);
+                    shooter.setPower(0.75);
                     elapsedTime.reset();
                 })
                 .setExecute(() -> {
-                    if (elapsedTime.seconds() > 1)
-                        pollenServo.setPosition(0);
+                    if (elapsedTime.seconds() > 3)
+                        pollenServo.setPosition(1);
                 })
-                .setDone(() -> {return elapsedTime.seconds() >= 2;})
+                .setDone(() -> {return elapsedTime.seconds() >= 5;})
                 .setEnd(endCondition -> {
                     shooter.setPower(0);
-                    pollenServo.setPosition(0.2);
+                    pollenServo.setPosition(0.8);
                 })
                 ;
     }
