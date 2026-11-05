@@ -1,15 +1,22 @@
 package org.firstinspires.ftc.teamcode.BioBuzz;
 
+import static org.firstinspires.ftc.teamcode.BioBuzz.ArmTest.MAX_POWER;
+import static org.firstinspires.ftc.teamcode.BioBuzz.ArmTest.MAX_TARGET;
+import static org.firstinspires.ftc.teamcode.BioBuzz.ArmTest.MIN_TARGET;
+import static org.firstinspires.ftc.teamcode.BioBuzz.ArmTest.TOLERANCE;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="TeleOp 2026", group="TeleOp Main")
+@TeleOp(name="TeleOp 20.8", group="TeleOp Main")
 public class TeleOpBioBuzz extends OpMode {
 
     private final ElapsedTime runTime = new ElapsedTime();
@@ -19,7 +26,10 @@ public class TeleOpBioBuzz extends OpMode {
     private DcMotor intake;
     private Servo pollenServo;
     private Servo nectarServo;
+    private DcMotor arm;
+    private FlowerArmPiDController pid;
     private Limelight3A limelight;
+    private double target = 0;
 
     @Override
     public void init() {
@@ -47,6 +57,14 @@ public class TeleOpBioBuzz extends OpMode {
         pollenServo = hardwareMap.get(Servo.class, "PollenServo");
         nectarServo = hardwareMap.get(Servo.class, "NectarServo");
 
+        arm = hardwareMap.get(DcMotor.class, "arm");
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        pid = new FlowerArmPiDController(0.01, 0, 0);
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
@@ -55,8 +73,8 @@ public class TeleOpBioBuzz extends OpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         pollenServo.setDirection(Servo.Direction.REVERSE);
-        pollenServo.setPosition(0.9);
-        nectarServo.setPosition(0.9);
+        pollenServo.setPosition(0.8);
+        nectarServo.setPosition(0.5);
 
         telemetry.addData("Status", "Initialised");
         telemetry.update();
@@ -99,14 +117,37 @@ public class TeleOpBioBuzz extends OpMode {
 
         if (gamepad1.left_bumper) {
             pollenServo.setPosition(1);
-            nectarServo.setPosition(0.9);
+            nectarServo.setPosition(1);
         }
         else {
-            pollenServo.setPosition(0.9);
-            nectarServo.setPosition(0.7);
+            pollenServo.setPosition(0.8);
+            nectarServo.setPosition(0.5);
         }
 
+        if (gamepad1.leftTriggerWasPressed()) {
+            if (target == MAX_TARGET) target = 4649;
+            else target = MAX_TARGET;
+        }
+        arm();
+
         telemetry.update();
+    }
+
+    private void arm() {
+
+        target = Range.clip(target, MIN_TARGET, MAX_TARGET);
+
+        double pos = arm.getCurrentPosition();
+        double error = target - pos;
+
+        // Always call calculate so dt stays small, then decide whether to use it
+        double power = pid.calculate(target, pos);
+
+        if (Math.abs(error) < TOLERANCE) {
+            arm.setPower(0);   // worm gear holds the arm
+        } else {
+            arm.setPower(Range.clip(power, -MAX_POWER, MAX_POWER));
+        }
     }
 
     private void shoot() {
@@ -115,8 +156,8 @@ public class TeleOpBioBuzz extends OpMode {
             nectarShooter.setPower(0);
         }
         else {
-            pollenShooter.setPower(0.7);
-            nectarShooter.setPower(0.8);
+            pollenShooter.setPower(0.75);
+            nectarShooter.setPower(0.9);
         }
     }
 
